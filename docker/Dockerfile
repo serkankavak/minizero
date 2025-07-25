@@ -5,7 +5,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ENV TZ=Asia/Taipei
 
-RUN apt-get update && \
+RUN rm /etc/apt/sources.list.d/cuda.list || true && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
     vim \
     gdb \
@@ -26,7 +27,7 @@ RUN apt-get update && \
     ln -s /usr/bin/python3 /usr/bin/python && \
     python3 -m pip install -U pip \
     gdown \
-    cmake \
+    cmake==3.25.2 \
     numpy \
     pandas \
     jupyter \
@@ -38,7 +39,7 @@ RUN apt-get update && \
 RUN python3 -m pip install torch==1.13.0+cu116 --extra-index-url https://download.pytorch.org/whl/cu116 && \
     wget -qO- https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.13.0%2Bcu116.zip | bsdtar -xvf- -C /usr/local && \
     rm /usr/local/libtorch/lib/libcudnn.so.8
-ENV CMAKE_PREFIX_PATH /usr/local/libtorch/share/cmake/Torch
+ENV CMAKE_PREFIX_PATH=/usr/local/libtorch/share/cmake/Torch
 
 # install gym/atari & Arcade Learning Environment (ALE v0.8.0)
 # You can download Atari game ROMs from the following link: https://www.atarimania.com/rom_collection_archive_atari_2600_roms.html

@@ -21,6 +21,7 @@ ModeHandler::ModeHandler()
     RegisterFunction("zero_server", this, &ModeHandler::runZeroServer);
     RegisterFunction("zero_training_name", this, &ModeHandler::runZeroTrainingName);
     RegisterFunction("env_test", this, &ModeHandler::runEnvTest);
+    RegisterFunction("env_test_step_by_step", this, &ModeHandler::runEnvTestStepByStep);
     RegisterFunction("remove_obs", this, &ModeHandler::runRemoveObs);
     RegisterFunction("recover_obs", this, &ModeHandler::runRecoverObs);
 }
@@ -177,6 +178,31 @@ void ModeHandler::runEnvTest()
     env_loader.loadFromEnvironment(env);
     std::cout << env_loader.toString() << std::endl;
 }
+
+
+void ModeHandler::runEnvTestStepByStep()
+{
+    Environment env;
+    env.reset();
+    std::cout << env.toString() << std::endl;
+
+    while (!env.isTerminal()) {
+        std::vector<Action> legal_actions = env.getLegalActions();
+        int index = utils::Random::randInt() % legal_actions.size();
+        env.act(legal_actions[index]);
+        std::cout << env.toString() << std::endl;
+        // Wait for user input to proceed to the next step
+        std::cout << "Executed action index: " << legal_actions[index].getActionID() << " Action: " << legal_actions[index].toConsoleString() << std::endl;
+        std::cout << "Press Enter to continue to the next move..." << std::endl;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    EnvironmentLoader env_loader;
+    env_loader.loadFromEnvironment(env);
+    std::cout << "Final state loaded into EnvironmentLoader:" << std::endl;
+    std::cout << env_loader.toString() << std::endl;
+}
+
 
 void ModeHandler::runRemoveObs()
 {

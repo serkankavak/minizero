@@ -36,6 +36,8 @@ Console::Console()
     RegisterFunction("game_string", this, &Console::cmdGameString);
     RegisterFunction("load_model", this, &Console::cmdLoadModel);
     RegisterFunction("get_conf_str", this, &Console::cmdGetConfigString);
+    RegisterFunction("is_legal", this, &Console::cmdIsLegal);
+    RegisterFunction("all_legal", this, &Console::cmdAllLegal);
 }
 
 void Console::initialize()
@@ -262,6 +264,58 @@ void Console::cmdGetConfigString(const std::vector<std::string>& args)
     config::setConfiguration(cl);
     oss << std::endl;
     for (auto& conf_key : utils::stringToVector(args[1], ":")) { oss << cl.getConfig(conf_key); }
+    reply(ConsoleResponse::kSuccess, oss.str());
+}
+
+void Console::cmdIsLegal(const std::vector<std::string>& args)
+{
+    if (!checkArgument(args, 3, INT_MAX)) { return; }
+
+    // Parse the player and action string: is_legal <player> <action string>
+    // E.g. is_legal b D4
+    std::vector<std::string> action_args;
+    for (unsigned int i = 1; i < args.size(); i++) { 
+        action_args.push_back(args[i]); 
+    }
+
+    const Environment& env = actor_->getEnvironment();
+    try {
+        Action action(action_args);
+
+        // Check who's turn it is
+        if (minizero::env::charToPlayer(args[1][0]) != env.getTurn()) {
+            std::ostringstream oss;
+            oss << "It's " << minizero::env::playerToChar(env.getTurn()) << "'s turn.";
+            return reply(ConsoleResponse::kFail, oss.str());
+        }
+
+        // Check if the action is legal in the current environment
+        bool is_legal = env.isLegalAction(action);
+
+        reply(ConsoleResponse::kSuccess, is_legal ? "True" : "False");
+    } catch (const std::exception& e) {
+        reply(ConsoleResponse::kFail, std::string("Invalid action: ") + e.what());
+    }
+}
+
+void Console::cmdAllLegal(const std::vector<std::string>& args)
+{
+    if (!checkArgument(args, 1, 1)) { return; }
+
+    const Environment& env_transition = actor_->getEnvironment();
+    std::vector<std::string> legal_moves;
+    for (const Action& action : env_transition.getLegalActions()) {
+        legal_moves.push_back(action.toConsoleString());
+    }
+
+    std::ostringstream oss;
+    oss << "Player: " << minizero::env::playerToChar(env_transition.getTurn()) << std::endl;
+    oss << "Legal moves: ";
+    for (size_t i = 0; i < legal_moves.size(); ++i) {
+        oss << legal_moves[i];
+        if (i != legal_moves.size() - 1) { oss << " "; }
+    }
+
     reply(ConsoleResponse::kSuccess, oss.str());
 }
 

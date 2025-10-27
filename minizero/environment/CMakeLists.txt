@@ -17,6 +17,7 @@ target_include_directories(
     havannah
     hex
     killallgo
+    leapfrog
     linesofaction
     nogo
     othello

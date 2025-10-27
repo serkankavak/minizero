@@ -62,6 +62,11 @@ typedef minizero::env::hex::HexEnvLoader EnvironmentLoader;
 typedef minizero::env::killallgo::KillAllGoAction Action;
 typedef minizero::env::killallgo::KillAllGoEnv Environment;
 typedef minizero::env::killallgo::KillAllGoEnvLoader EnvironmentLoader;
+#elif LEAPFROG
+#include "leapfrog.h"
+typedef minizero::env::leapfrog::LeapFrogAction Action;
+typedef minizero::env::leapfrog::LeapFrogEnv Environment;
+typedef minizero::env::leapfrog::LeapFrogEnvLoader EnvironmentLoader;
 #elif LINESOFACTION
 #include "linesofaction.h"
 typedef minizero::env::linesofaction::LinesOfActionAction Action;
@@ -154,6 +159,8 @@ inline void setUpEnv()
     config::env_board_size = 11;
 #elif KILLALLGO
     config::env_board_size = 7;
+#elif LEAPFROG
+    config::env_board_size = 8;
 #elif LINESOFACTION
     config::env_board_size = 8;
 #elif OTHELLO

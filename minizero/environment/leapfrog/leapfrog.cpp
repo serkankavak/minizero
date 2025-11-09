@@ -292,8 +292,8 @@ bool LeapFrogEnv::isLegalAction(const LeapFrogAction& action) const
 bool LeapFrogEnv::isTerminal() const
 {
     // Self-play might go to infinite moves
-    // Game length capped at 5 * boardsize * boardsize
-    if (static_cast<int>(actions_.size()) > 5 * board_size_ * board_size_) { return true; }
+    // Game length capped at 10 * boardsize * boardsize
+    if (static_cast<int>(actions_.size()) > 10 * board_size_ * board_size_) { return true; }
 
     return getLegalActions().empty();
 }
@@ -301,11 +301,9 @@ bool LeapFrogEnv::isTerminal() const
 float LeapFrogEnv::getEvalScore(bool is_resign /*= false*/) const
 {
     Player result = (is_resign ? getNextPlayer(turn_, kLeapFrogNumPlayer) : eval());
-    // Small offset to ensure float formatting for binding and training with Python
-    const float offset = 0.00001f;
     switch (result) {
-        case Player::kPlayer1: return 1.0f + offset;
-        case Player::kPlayer2: return -1.0f - offset;
+        case Player::kPlayer1: return 1.0f;
+        case Player::kPlayer2: return -1.0f;
         default: return 0.0f;
     }
 }
